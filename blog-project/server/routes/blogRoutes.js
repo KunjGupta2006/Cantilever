@@ -1,10 +1,11 @@
 import {Router} from "express";
 const blogRouter=Router();
 import { createBlog, deleteBlog, getAllBlogs, getBlogById, updateBlog } from "../controllers/blogController.js"
+import { authorize, checkAuth } from "../middlewares/authMiddlewares.js";
 
 blogRouter.get("/",getAllBlogs);
 blogRouter.get("/:id",getBlogById);
-blogRouter.post("/", createBlog); // TODO add middlewares auth + iscreator
-blogRouter.put("/:id",updateBlog); //TODO add middlewares auth+ iscreator
-blogRouter.delete("/:id",deleteBlog); // TODO add middlewares auth+ iscreator
+blogRouter.post("/",checkAuth ,createBlog);
+blogRouter.put("/:id",checkAuth,authorize ,updateBlog);
+blogRouter.delete("/:id",checkAuth,authorize,deleteBlog); 
 export default blogRouter;
