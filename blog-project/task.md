@@ -59,7 +59,7 @@ npm install zod
 ```
 
 Security:
-
+<!-- 
 ```bash
 npm install helmet express-rate-limit xss-clean hpp
 ```
@@ -68,7 +68,7 @@ Uploads:
 
 ```bash
 npm install multer cloudinary
-```
+``` -->
 
 Utilities:
 
@@ -154,7 +154,7 @@ MongoDB Connected
 ### Tasks:
 
 Create `.env`
-
+<!-- 
 ```env
 PORT=
 MONGO_URI=
@@ -166,7 +166,7 @@ CLOUDINARY_API_KEY=
 CLOUDINARY_SECRET=
 EMAIL_USER=
 EMAIL_PASSWORD=
-```
+``` -->
 
 Purpose:
 Store sensitive values securely.
@@ -332,10 +332,10 @@ Expected Outcome:
 Registration API works.
 
 Checkpoint:
-
+<!-- 
 ```bash
 POST /register
-```
+``` -->
 
 ---
 
@@ -393,60 +393,6 @@ Access token refresh works.
 
 Checkpoint:
 New token generated.
-
----
-
-## Step 14: Forgot Password
-
-### Tasks:
-
-* Generate reset token
-* Email token
-
-Purpose:
-Recover account.
-
-Expected Outcome:
-Reset email sent.
-
-Checkpoint:
-Email received.
-
----
-
-## Step 15: Reset Password
-
-### Tasks:
-
-* Validate token
-* Update password
-
-Purpose:
-Reset credentials.
-
-Expected Outcome:
-Password updated.
-
-Checkpoint:
-Login with new password.
-
----
-
-## Step 16: Email Verification
-
-### Tasks:
-
-* Create verification token
-* Verify email
-
-Purpose:
-Validate users.
-
-Expected Outcome:
-Account verification works.
-
-Checkpoint:
-Status becomes verified.
 
 ---
 
@@ -655,25 +601,6 @@ Checkpoint:
 Count changes.
 
 ---
-
-## Step 26: Bookmarks System
-
-### Tasks:
-
-* Save blog
-* Remove bookmark
-
-Purpose:
-Personalized content.
-
-Expected Outcome:
-Bookmarks saved.
-
-Checkpoint:
-Bookmark list updates.
-
----
-
 ## Step 27: Search & Filtering
 
 ### Tasks:
@@ -729,120 +656,6 @@ Pages load correctly.
 
 ---
 
-# Phase 4: Admin System
-
-## Step 29: Dashboard APIs
-
-Tasks:
-
-* Total users
-* Total blogs
-* Total comments
-
-Purpose:
-Dashboard metrics.
-
-Expected Outcome:
-Statistics API.
-
-Checkpoint:
-Metrics display correctly.
-
----
-
-## Step 30: User Management
-
-Tasks:
-
-* List users
-* Ban users
-* Delete users
-
-Purpose:
-Control users.
-
-Expected Outcome:
-Admin management complete.
-
-Checkpoint:
-User actions work.
-
----
-
-## Step 31: Blog Moderation
-
-Tasks:
-
-* Approve blog
-* Reject blog
-* Delete blog
-
-Purpose:
-Content moderation.
-
-Expected Outcome:
-Admin moderation works.
-
-Checkpoint:
-Status updates.
-
----
-
-## Step 32: Category Management
-
-Tasks:
-
-* Create
-* Edit
-* Delete
-
-Purpose:
-Manage categories.
-
-Expected Outcome:
-CRUD works.
-
-Checkpoint:
-Changes reflect.
-
----
-
-## Step 33: Comment Moderation
-
-Tasks:
-
-* Remove comments
-* Flag content
-
-Purpose:
-Moderate discussions.
-
-Expected Outcome:
-Moderation works.
-
-Checkpoint:
-Actions apply.
-
----
-
-## Step 34: Analytics APIs
-
-Tasks:
-
-* Views
-* User growth
-* Blog statistics
-
-Purpose:
-Platform insights.
-
-Expected Outcome:
-Analytics data available.
-
-Checkpoint:
-Data returned correctly.
-
----
 
 # Phase 5: API Completion & Security
 
@@ -881,7 +694,7 @@ Checkpoint:
 Images accessible.
 
 ---
-
+<!-- 
 ## Step 37: Security Implementation
 
 Tasks:
@@ -949,7 +762,7 @@ Backend complete.
 
 ✓ Admin complete
 
----
+--- -->
 
 # Phase 6: Frontend Setup
 
