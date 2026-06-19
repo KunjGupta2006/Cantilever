@@ -1,16 +1,21 @@
 import { configDotenv } from "dotenv";
 configDotenv();
+import validateEnv from "./utils/validateENV.js";
+validateEnv();
 
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
+import helmet from "helmet";
+import morgan from "morgan";
 
 // routers
 import blogRouter from "./routes/blogRoutes.js";
 import reviewRouter from "./routes/reviewRoutes.js";
 import userRouter from "./routes/userRoutes.js";
+import uploadRouter from "./routes/uploadRoutes.js";
 
 const app=express();
 const __dirname=path.resolve();
@@ -23,12 +28,16 @@ const MONGO_URI=process.env.MONGO_URI;
 // middlewares
 app.use(express.json());
 app.use(cookieParser());
-
+app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   origin:FRONTEND_URL,
   credentials: true,
 }));
+
+if(process.env.NODE_ENV==="development"){
+    app.use(morgan("dev"));
+}
 
 
 
@@ -40,6 +49,7 @@ app.get("/api",    (req, res) => res.send("Server working fine"));
 app.use("/api/blog",blogRouter );
 app.use("/api/review",reviewRouter );
 app.use("/api/user",userRouter );
+app.use("/api/upload", uploadRouter);
 
 app.use((err, req, res, next) => {
   console.error(err);

@@ -39,19 +39,6 @@ export const getAllAuthors = asyncHandler(async (req, res) => {
 export const usersignup = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
-  if (!username || !email || !password) {
-    return res.status(400).json({
-      success: false,
-      message: "All fields required",
-    });
-  }
-
-  if (password.length < 6) {
-    return res.status(400).json({
-      success: false,
-      message: "Password must be at least 6 characters",
-    });
-  }
 
   const existingUser = await User.findOne({ email });
 
@@ -84,12 +71,6 @@ export const usersignup = asyncHandler(async (req, res) => {
 export const userlogin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({
-      success: false,
-      message: "All fields required",
-    });
-  }
 
   const user = await User.findOne({ email });
 
@@ -126,6 +107,8 @@ export const userlogout = asyncHandler(async (req, res) => {
   res.cookie("token", "", {
     httpOnly: true,
     expires: new Date(0),
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   });
 
   res.status(200).json({
@@ -135,15 +118,21 @@ export const userlogout = asyncHandler(async (req, res) => {
 });
 
 export const updateProfile = asyncHandler(async (req, res) => {
-  const { username, profileImage } = req.body;
+  const { username, profileImage,bio } = req.body;
 
  const updates = {};
 if (username) updates.username = username;
 if (profileImage) updates.profileImage = profileImage;
+if (bio !== undefined) updates.bio = bio;
 
 const user = await User.findByIdAndUpdate(
   req.user._id, updates, { new: true, runValidators: true }
 ).select("-password");
+res.status(200).json({
+  success: true,
+  message: "Profile updated successfully",
+  user,
+});
 });
 
 // GET CURRENT LOGGED IN USER
