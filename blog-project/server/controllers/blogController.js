@@ -9,10 +9,12 @@ export const getAllBlogs = asyncHandler(async (req, res) => {
   const skip    = (page - 1) * limit;
   const search  = req.query.search || "";
   const tag     = req.query.tag    || "";
+  const author = req.query.author || "";
 
   const filter = {};
-  if (search) filter.title = { $regex: search, $options: "i" };
-  if (tag)    filter.tags  = tag;
+if (search) filter.title  = { $regex: search, $options: "i" };
+if (tag)    filter.tags   = tag;
+if (author) filter.author = author;
 
   const [blogs, total] = await Promise.all([
     Blog.find(filter)

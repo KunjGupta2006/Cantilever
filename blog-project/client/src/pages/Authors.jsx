@@ -93,10 +93,10 @@ export default function Authors() {
                     e.currentTarget.style.borderColor = "var(--color-cream-border)";
                   }}
                 >
-                  {author.profileImage ? (
+                  {author.user?.profileImage ? (
                     <img
-                      src={author.profileImage}
-                      alt={author.username}
+                      src={author.user.profileImage}
+                      alt={author.user.username}
                       style={{ width: 52, height: 52, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
                     />
                   ) : (
@@ -108,16 +108,16 @@ export default function Authors() {
                       }}
                     >
                       <span style={{ fontFamily: "var(--font-display)", fontSize: 19, fontWeight: 700, color: "var(--color-amber)" }}>
-                        {author.username?.[0]?.toUpperCase()}
+                        {author.user?.username?.[0]?.toUpperCase()}
                       </span>
                     </div>
                   )}
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 700, color: "var(--color-ink)" }}>
-                      {author.username}
+                      {author.user?.username}
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 5, fontFamily: "var(--font-body)", fontSize: 12, color: "var(--color-ink-faint)" }}>
-                      <PenLine size={11} /> {author.blogCount ?? author.blogsCount ?? 0} posts
+                      <PenLine size={11} /> {author.blogCount ?? 0} posts
                     </div>
                   </div>
                 </Link>

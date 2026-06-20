@@ -11,7 +11,6 @@ export const postReview = asyncHandler(async (req, res) => {
       message: "Blog not found",
     });
   }
-
   if (!req.body.review) {
     return res.status(400).json({
       message: "Review data is required",

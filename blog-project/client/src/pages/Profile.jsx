@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useAuth } from "../context/AuthContext";
 import api from "../lib/axios";
 import { formatDate, readTime } from "../lib/utils";
+import ImageUploadField from "../components/ImageUploadField";
 
 export default function Profile() {
   const { user, updateUser } = useAuth();
@@ -13,6 +14,7 @@ export default function Profile() {
   const [editing, setEditing] = useState(false);
   const [username, setUsername] = useState(user?.username ?? "");
   const [profileImage, setProfileImage] = useState(user?.profileImage ?? "");
+  const [bio, setBio] = useState(user?.bio ?? "");
   const [saving, setSaving] = useState(false);
 
   const [posts, setPosts] = useState([]);
@@ -36,8 +38,8 @@ export default function Profile() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await api.put("/user/me", { username, profileImage });
-      updateUser(res.data.user ?? { ...user, username, profileImage });
+      const res = await api.put("/user/update-profile", { username, profileImage, bio });
+      updateUser(res.data.user ?? { ...user, username, profileImage, bio });
       toast.success("Profile updated");
       setEditing(false);
     } catch {
@@ -50,6 +52,7 @@ export default function Profile() {
   const handleCancel = () => {
     setUsername(user.username ?? "");
     setProfileImage(user.profileImage ?? "");
+    setBio(user.bio ?? "");
     setEditing(false);
   };
 
@@ -70,58 +73,95 @@ export default function Profile() {
             boxShadow: "0 12px 40px rgba(0,0,0,0.05)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 20 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-              {profileImage || user.profileImage ? (
-                <img
-                  src={editing ? profileImage : user.profileImage}
-                  alt={user.username}
-                  style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", border: "2px solid var(--color-cream-border)" }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: 72, height: 72, borderRadius: "50%",
-                    backgroundColor: "var(--color-amber-light)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}
-                >
-                  <span style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700, color: "var(--color-amber)" }}>
-                    {user.username?.[0]?.toUpperCase()}
-                  </span>
-                </div>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 20, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", alignItems: !editing ? "center" : "flex-start", gap: 18, flex: 1, minWidth: 260 }}>
+              {!editing && (
+                <>
+                  {user.profileImage ? (
+                    <img
+                      src={user.profileImage}
+                      alt={user.username}
+                      style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", border: "2px solid var(--color-cream-border)" }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: 72, height: 72, borderRadius: "50%",
+                        backgroundColor: "var(--color-amber-light)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                      }}
+                    >
+                      <span style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700, color: "var(--color-amber)" }}>
+                        {user.username?.[0]?.toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  <div>
+                    <h1 style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700, color: "var(--color-ink)", letterSpacing: "-0.02em" }}>
+                      {user.username}
+                    </h1>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--color-ink-faint)", marginBottom: user.bio ? 6 : 0 }}>{user.email}</p>
+                    {user.bio && (
+                      <p style={{ fontFamily: "var(--font-body)", fontSize: 13.5, color: "var(--color-ink-soft)", lineHeight: 1.5, maxWidth: 420 }}>
+                        {user.bio}
+                      </p>
+                    )}
+                  </div>
+                </>
               )}
 
-              {!editing ? (
-                <div>
-                  <h1 style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700, color: "var(--color-ink)", letterSpacing: "-0.02em" }}>
-                    {user.username}
-                  </h1>
-                  <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--color-ink-faint)" }}>{user.email}</p>
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <input
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Username"
-                    style={{
-                      fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 600,
-                      padding: "8px 12px", borderRadius: 8,
-                      border: "1px solid var(--color-cream-border)", outline: "none",
-                    }}
-                  />
-                  <input
-                    value={profileImage}
-                    onChange={(e) => setProfileImage(e.target.value)}
-                    placeholder="Profile image URL"
-                    style={{
-                      fontFamily: "var(--font-body)", fontSize: 13,
-                      padding: "8px 12px", borderRadius: 8,
-                      border: "1px solid var(--color-cream-border)", outline: "none",
-                      width: 240,
-                    }}
-                  />
+              {editing && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%" }}>
+                  <label style={{ display: "block" }}>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600, color: "var(--color-ink-soft)", marginBottom: 6, display: "block" }}>
+                      Username
+                    </span>
+                    <input
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Username"
+                      style={{
+                        fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 600,
+                        padding: "8px 12px", borderRadius: 8,
+                        border: "1px solid var(--color-cream-border)", outline: "none",
+                        width: "100%", maxWidth: 280,
+                      }}
+                    />
+                  </label>
+
+                  <label style={{ display: "block" }}>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600, color: "var(--color-ink-soft)", marginBottom: 6, display: "block" }}>
+                      Bio
+                    </span>
+                    <textarea
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      placeholder="A short line about you…"
+                      rows={3}
+                      maxLength={280}
+                      style={{
+                        fontFamily: "var(--font-body)", fontSize: 13,
+                        padding: "8px 12px", borderRadius: 8,
+                        border: "1px solid var(--color-cream-border)", outline: "none",
+                        width: "100%", maxWidth: 360, resize: "vertical",
+                      }}
+                    />
+                  </label>
+
+                  <div style={{ maxWidth: 280 }}>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600, color: "var(--color-ink-soft)", marginBottom: 6, display: "block" }}>
+                      Profile photo
+                    </span>
+                    <ImageUploadField
+                      value={profileImage}
+                      onChange={setProfileImage}
+                      label="profile"
+                      maxHeight={140}
+                      endpoint="/upload/profile"
+                      fieldName="profileImage"
+                      maxSizeMB={2}
+                    />
+                  </div>
                 </div>
               )}
             </div>

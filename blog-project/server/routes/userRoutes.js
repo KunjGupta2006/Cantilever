@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { getAllAuthors, getUser, updateProfile, userlogin, userlogout, usersignup } from "../controllers/userController.js";
+import { getAllAuthors, getUser, getUserById, updateProfile, userlogin, userlogout, usersignup } from "../controllers/userController.js";
 const userRouter=Router();
 import {checkAuth} from "../middlewares/authMiddlewares.js"
 import { authRateLimit } from "../middlewares/rateLimitMiddleware.js";
@@ -11,5 +11,6 @@ userRouter.post("/login", authRateLimit, validateLogin ,userlogin);
 userRouter.post("/logout",userlogout);
 userRouter.get("/me", checkAuth, getUser);
 userRouter.put("/update-profile", checkAuth, updateProfile);
+userRouter.get("/:id", getUserById);  
 
 export default userRouter;

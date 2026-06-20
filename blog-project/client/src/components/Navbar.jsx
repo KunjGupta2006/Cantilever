@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { PenLine, Menu, X, LogOut, User } from "lucide-react";
@@ -19,15 +19,16 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  // Close mobile menu on route change
+  // Close mobile menu / dropdown only on actual navigation — not on every
+  // open/close toggle. Using a ref to track the previous pathname instead of
+  // depending on mobileOpen/dropOpen avoids re-firing right after opening.
+  const prevPathRef = useRef(location.pathname);
   useEffect(() => {
-    if (!mobileOpen && !dropOpen) return;
-    const id = window.setTimeout(() => {
-      setMobileOpen(false);
-      setDropOpen(false);
-    }, 0);
-    return () => window.clearTimeout(id);
-  }, [location, mobileOpen, dropOpen]);
+    if (prevPathRef.current === location.pathname) return;
+    prevPathRef.current = location.pathname;
+    setMobileOpen(false);
+    setDropOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     await logout();

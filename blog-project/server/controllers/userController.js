@@ -61,7 +61,7 @@ export const usersignup = asyncHandler(async (req, res) => {
     success: true,
     message: "User signed up successfully",
     user: {
-      id: user._id,
+      _id: user._id,
       username: user.username,
       email: user.email,
     },
@@ -96,7 +96,7 @@ export const userlogin = asyncHandler(async (req, res) => {
     success: true,
     message: "Login successful",
     user: {
-      id: user._id,
+      _id: user._id,
       username: user.username,
       email: user.email,
     },
@@ -141,4 +141,12 @@ export const getUser = asyncHandler(async (req, res) => {
     success: true,
     user: req.user,
   });
+});
+
+export const getUserById = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id).select("username profileImage bio");
+  if (!user) {
+    return res.status(404).json({ success: false, message: "User not found" });
+  }
+  res.status(200).json({ success: true, user });
 });

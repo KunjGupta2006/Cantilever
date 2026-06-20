@@ -5,6 +5,7 @@ import { ImagePlus, X, Send } from "lucide-react";
 import { toast } from "sonner";
 import api from "../lib/axios";
 import { readTime } from "../lib/utils";
+import ImageUploadField from "../components/ImageUploadField";
 
 const SUGGESTED_TAGS = ["nodejs", "react", "mongodb", "css", "javascript", "security", "webdev", "api", "database", "general"];
 
@@ -74,7 +75,7 @@ export default function WriteBlog() {
       const msg = err?.response?.data?.message || "Couldn't publish — try again.";
       toast.error(msg);
     } finally {
-      setSubmitting(false); 
+      setSubmitting(false);
     }
   };
 
@@ -150,31 +151,17 @@ export default function WriteBlog() {
                 marginBottom: 10,
               }}
             >
-              <ImagePlus size={14} /> Cover image URL (optional)
+              <ImagePlus size={14} /> Cover image (optional)
             </label>
-            <input
+            <ImageUploadField
               value={image}
-              onChange={(e) => setImage(e.target.value)}
-              placeholder="https://…"
-              style={{
-                width: "100%",
-                fontFamily: "var(--font-body)",
-                fontSize: 13,
-                padding: "10px 12px",
-                backgroundColor: "var(--color-cream)",
-                border: "1px solid var(--color-cream-border)",
-                borderRadius: 8,
-                outline: "none",
-              }}
+              onChange={setImage}
+              label="cover"
+              maxHeight={220}
+              endpoint="/upload/blog"
+              fieldName="image"
+              maxSizeMB={5}
             />
-            {image && (
-              <img
-                src={image}
-                alt="Cover preview"
-                style={{ marginTop: 12, width: "100%", maxHeight: 220, objectFit: "cover", borderRadius: 10 }}
-                onError={(e) => (e.target.style.display = "none")}
-              />
-            )}
           </div>
 
           {/* Tags */}

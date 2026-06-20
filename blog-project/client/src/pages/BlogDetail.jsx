@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Clock, MessageCircle, Pencil, Trash2, ArrowLeft, Send } from "lucide-react";
+import { Clock, MessageCircle, Pencil, Trash2, ArrowLeft, Send, Star } from "lucide-react";
 import { toast } from "sonner";
 import api from "../lib/axios";
 import { useAuth } from "../context/AuthContext";
@@ -16,18 +16,16 @@ export default function BlogDetail() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [comment, setComment] = useState("");
+  const [rating, setRating] = useState(5);
   const [posting, setPosting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deletingReviewId, setDeletingReviewId] = useState(null);
 
   useEffect(() => {
     let active = true;
-    // schedule state updates async to avoid sync setState inside effect
-    Promise.resolve().then(() => {
-      if (!active) return;
-      setLoading(true);
-      setNotFound(false);
-    });
-
+    // avoid synchronous setState inside effect to prevent cascading renders
+    queueMicrotask(() => setLoading(true));
+    queueMicrotask(() => setNotFound(false));
     api
       .get(`/blog/${id}`)
       .then((res) => {
@@ -58,6 +56,9 @@ export default function BlogDetail() {
     }
   };
 
+  const fetchBlog = () =>
+    api.get(`/blog/${id}`).then((res) => setBlog(res.data.blog ?? res.data));
+
   const handleComment = async (e) => {
     e.preventDefault();
     if (!user) {
@@ -68,13 +69,31 @@ export default function BlogDetail() {
 
     setPosting(true);
     try {
-      const res = await api.post(`/review/${id}`, { comment: comment.trim() });
-      setBlog(res.data.blog ?? res.data);
+      await api.post(`/review/${id}`, { review: { comment: comment.trim(), rating } });
+      await fetchBlog(); // backend returns only the new review, not the populated blog — refetch
       setComment("");
+      setRating(5);
     } catch {
       toast.error("Couldn't post your comment");
     } finally {
       setPosting(false);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    if (!window.confirm("Delete this comment?")) return;
+    setDeletingReviewId(reviewId);
+    try {
+      await api.delete(`/review/${id}/${reviewId}`);
+      setBlog((prev) => ({
+        ...prev,
+        reviews: prev.reviews.filter((r) => r._id !== reviewId),
+      }));
+      toast.success("Comment deleted");
+    } catch {
+      toast.error("Couldn't delete that comment");
+    } finally {
+      setDeletingReviewId(null);
     }
   };
 
@@ -267,35 +286,59 @@ export default function BlogDetail() {
             <MessageCircle size={18} /> {blog.reviews?.length ?? 0} comment{blog.reviews?.length === 1 ? "" : "s"}
           </h3>
 
-          <form onSubmit={handleComment} style={{ display: "flex", gap: 10, marginBottom: 32 }}>
-            <input
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder={user ? "Add a comment…" : "Sign in to comment"}
-              disabled={!user}
-              style={{
-                flex: 1,
-                fontFamily: "var(--font-body)", fontSize: 14,
-                padding: "11px 16px",
-                backgroundColor: "var(--color-white)",
-                border: "1px solid var(--color-cream-border)",
-                borderRadius: 10, outline: "none",
-              }}
-            />
-            <button
-              type="submit"
-              disabled={posting || !user}
-              style={{
-                display: "flex", alignItems: "center", gap: 6,
-                fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 600,
-                padding: "11px 18px", borderRadius: 10, border: "none",
-                backgroundColor: "var(--color-ink)", color: "var(--color-white)",
-                cursor: posting || !user ? "default" : "pointer",
-                opacity: posting || !user ? 0.6 : 1,
-              }}
-            >
-              <Send size={13} /> Post
-            </button>
+          <form onSubmit={handleComment} style={{ marginBottom: 32 }}>
+            {user && (
+              <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 10 }}>
+                <span style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600, color: "var(--color-ink-soft)", marginRight: 6 }}>
+                  Your rating
+                </span>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setRating(n)}
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: 2, lineHeight: 0 }}
+                    aria-label={`${n} star${n === 1 ? "" : "s"}`}
+                  >
+                    <Star
+                      size={18}
+                      fill={n <= rating ? "var(--color-amber)" : "none"}
+                      color={n <= rating ? "var(--color-amber)" : "var(--color-ink-faint)"}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+            <div style={{ display: "flex", gap: 10 }}>
+              <input
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder={user ? "Add a comment…" : "Sign in to comment"}
+                disabled={!user}
+                style={{
+                  flex: 1,
+                  fontFamily: "var(--font-body)", fontSize: 14,
+                  padding: "11px 16px",
+                  backgroundColor: "var(--color-white)",
+                  border: "1px solid var(--color-cream-border)",
+                  borderRadius: 10, outline: "none",
+                }}
+              />
+              <button
+                type="submit"
+                disabled={posting || !user}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 600,
+                  padding: "11px 18px", borderRadius: 10, border: "none",
+                  backgroundColor: "var(--color-ink)", color: "var(--color-white)",
+                  cursor: posting || !user ? "default" : "pointer",
+                  opacity: posting || !user ? 0.6 : 1,
+                }}
+              >
+                <Send size={13} /> Post
+              </button>
+            </div>
           </form>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -329,15 +372,45 @@ export default function BlogDetail() {
                     padding: "12px 16px",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 600, color: "var(--color-ink)" }}>
-                      {review.user?.username ?? "Anonymous"}
-                    </span>
-                    {review.createdAt && (
-                      <span style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--color-ink-faint)" }}>
-                        {formatDate(review.createdAt)}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                      <span style={{ fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 600, color: "var(--color-ink)" }}>
+                        {review.user?.username ?? "Anonymous"}
                       </span>
-                    )}
+                      {review.createdAt && (
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--color-ink-faint)" }}>
+                          {formatDate(review.createdAt)}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      {review.rating && (
+                        <div style={{ display: "flex", gap: 1 }}>
+                          {[1, 2, 3, 4, 5].map((n) => (
+                            <Star
+                              key={n}
+                              size={11}
+                              fill={n <= review.rating ? "var(--color-amber)" : "none"}
+                              color={n <= review.rating ? "var(--color-amber)" : "var(--color-cream-border)"}
+                            />
+                          ))}
+                        </div>
+                      )}
+                      {user && review.user?._id === user._id && (
+                        <button
+                          onClick={() => handleDeleteReview(review._id)}
+                          disabled={deletingReviewId === review._id}
+                          style={{
+                            background: "none", border: "none", cursor: deletingReviewId === review._id ? "default" : "pointer",
+                            color: "var(--color-ink-faint)", padding: 2, lineHeight: 0,
+                            opacity: deletingReviewId === review._id ? 0.5 : 1,
+                          }}
+                          aria-label="Delete comment"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <p style={{ fontFamily: "var(--font-body)", fontSize: 13.5, color: "var(--color-ink-soft)", lineHeight: 1.6 }}>
                     {review.comment}
