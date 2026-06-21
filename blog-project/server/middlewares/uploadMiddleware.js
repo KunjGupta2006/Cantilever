@@ -4,11 +4,11 @@ import cloudinary from "../utils/cloudinary.js";
 
 const blogStorage = new CloudinaryStorage({
   cloudinary,
-  params: {
+  params:async (req,file)=> {return{
     folder: "blog-app/blogs",
     allowed_formats: ["jpg", "jpeg", "png", "webp"],
     transformation: [{ width: 1200, height: 630, crop: "limit" }],
-  },
+  }}
 });
 
 const profileStorage = new CloudinaryStorage({

@@ -62,7 +62,8 @@ export default function WriteBlog() {
     }
 
     setSubmitting(true);
-    const payload = { title: title.trim(), content, image: image.trim(), tags };
+    const payload = { title: title.trim(), content, tags };
+    if (image.trim()) payload.image = image.trim();
 
     try {
       const res = editId

@@ -51,7 +51,7 @@ export const validateBlog = [
     .isArray().withMessage("Tags must be an array"),
 
   body("image")
-    .optional()
+    .optional({ values: "falsy" })
     .isURL().withMessage("Image must be a valid URL"),
 
   handleValidationErrors,
