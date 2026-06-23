@@ -8,6 +8,7 @@ import Login      from "./pages/Login";
 import Signup     from "./pages/Signup";
 import WriteBlog  from "./pages/WriteBlog";
 import Authors    from "./pages/Authors";
+import AuthorProfile from "./components/AuthorProfile.jsx";
 import Profile    from "./pages/Profile";
 
 // Redirect logged-out users away from protected pages
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/"            element={<Home />} />
           <Route path="/blog/:id"    element={<BlogDetail />} />
           <Route path="/authors"     element={<Authors />} />
+          <Route path="/authors/:id"     element={<AuthorProfile />} />
 
           <Route path="/login"  element={<GuestRoute><Login /></GuestRoute>} />
           <Route path="/signup" element={<GuestRoute><Signup /></GuestRoute>} />

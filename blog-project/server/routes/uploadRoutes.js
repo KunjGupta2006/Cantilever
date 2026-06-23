@@ -4,27 +4,22 @@ import { uploadBlogImage, uploadProfileImage } from "../middlewares/uploadMiddle
 
 const uploadRouter = Router();
 
-uploadRouter.post("/blog", checkAuth, (req, res) => {
+uploadRouter.post("/blog", checkAuth, (req, res, next) => {
   uploadBlogImage(req, res, (err) => {
-    if (err) {
-
-      return res.status(400).json({ success: false, message: err.message });
-    }
+    if (err) return next(err);
     if (!req.file) {
       return res.status(400).json({ success: false, message: "No image provided" });
     }
     res.status(200).json({
       success: true,
-      url: req.file.path, // Cloudinary URL
+      url: req.file.path,
     });
   });
 });
 
-uploadRouter.post("/profile", checkAuth, (req, res) => {
+uploadRouter.post("/profile", checkAuth, (req, res, next) => {
   uploadProfileImage(req, res, (err) => {
-    if (err) {
-      return res.status(400).json({ success: false, message: err.message });
-    }
+    if (err) return next(err);
     if (!req.file) {
       return res.status(400).json({ success: false, message: "No image provided" });
     }

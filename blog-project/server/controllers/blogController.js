@@ -104,13 +104,7 @@ export const updateBlog = asyncHandler(async (req, res) => {
 
 // DELETE BLOG
 export const deleteBlog = asyncHandler(async (req, res) => {
-  const blog = await Blog.findById(req.params.id);
-
-  if (!blog) {
-    return res.status(404).json({
-      message: "Blog not found",
-    });
-  }
+  const blog = req.blog;
 
   await Review.deleteMany({ blog: blog._id });
   await Blog.findByIdAndDelete(blog._id);

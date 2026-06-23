@@ -64,6 +64,8 @@ export const usersignup = asyncHandler(async (req, res) => {
       _id: user._id,
       username: user.username,
       email: user.email,
+      profileImage: user.profileImage,
+      bio: user.bio,
     },
   });
 });
@@ -99,6 +101,8 @@ export const userlogin = asyncHandler(async (req, res) => {
       _id: user._id,
       username: user.username,
       email: user.email,
+      profileImage: user.profileImage,
+      bio: user.bio,
     },
   });
 });

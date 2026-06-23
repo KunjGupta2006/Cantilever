@@ -13,11 +13,11 @@ const blogStorage = new CloudinaryStorage({
 
 const profileStorage = new CloudinaryStorage({
   cloudinary,
-  params: {
+  params: async (req,file)=> {return{
     folder: "blog-app/profiles",
     allowed_formats: ["jpg", "jpeg", "png", "webp"],
-    transformation: [{ width: 400, height: 400, crop: "fill", gravity: "face" }],
-  },
+    transformation: [{ width: 400, height: 400, crop: "fill" }],
+  }},
 });
 
 const fileFilter = (req, file, cb) => {

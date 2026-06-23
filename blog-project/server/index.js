@@ -29,15 +29,15 @@ const PORT        = process.env.PORT;
 const FRONTEND_URL = process.env.FRONTEND_URL;
 const MONGO_URI   = process.env.MONGO_URI;
 
-// middlewares
-app.use(express.json());
-app.use(cookieParser());
-app.use(helmet());
-app.use(express.urlencoded({ extended: true }));
+// middlewares — cors BEFORE helmet so preflight gets proper CORS headers
 app.use(cors({
   origin: FRONTEND_URL,
   credentials: true,
 }));
+app.use(express.json());
+app.use(cookieParser());
+app.use(helmet());
+app.use(express.urlencoded({ extended: true }));
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -55,8 +55,10 @@ app.use("/api/upload",  uploadRouter);
 
 // global error handler — must be after all routes
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(err.status || 500).json({
+  // Multer/Cloudinary upload failures should be 400, not propagating upstream status
+  const status = (err.name === "MulterError" || err.name === "UnexpectedResponse" || err.http_code === 403) ? 400 : (err.status || err.http_code || 500);
+  res.status(status).json({
+    success: false,
     message: err.message || "Internal Server Error",
   });
 });

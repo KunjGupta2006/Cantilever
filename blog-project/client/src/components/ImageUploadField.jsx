@@ -43,10 +43,7 @@ export default function ImageUploadField({
 
     setUploading(true);
     try {
-      const res = await api.post(endpoint, formData, {
-        // Let the browser set the correct multipart boundary
-        headers: { "Content-Type": undefined },
-      });
+      const res = await api.post(endpoint, formData);
       const url = res.data?.url;
       if (!url) throw new Error("No URL returned from upload");
       onChange(url);

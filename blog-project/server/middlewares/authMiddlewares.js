@@ -76,6 +76,8 @@ async(req,res,next)=>{
 
     }
 
+    req.blog = blog;
+
     next();
 
 });

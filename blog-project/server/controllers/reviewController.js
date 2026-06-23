@@ -16,6 +16,11 @@ export const postReview = asyncHandler(async (req, res) => {
       message: "Review data is required",
     });
   }
+  if (!req.body.review.comment?.trim()) {
+    return res.status(400).json({
+      message: "Comment cannot be empty",
+    });
+  }
 
   const newReview = new Review(req.body.review);
   newReview.user = req.user._id;
