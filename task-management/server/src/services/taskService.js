@@ -115,10 +115,11 @@ export const deleteTask = async (taskId, userId) => {
 };
 
 export const getTaskStats = async (userId) => {
-  const [total, completed, pending] = await Promise.all([
+  const [total, completed, pending, inProgress] = await Promise.all([
     Task.countDocuments({ createdBy: userId }),
     Task.countDocuments({ createdBy: userId, status: "completed" }),
-    Task.countDocuments({ createdBy: userId, status: "pending" }),
+    Task.countDocuments({ createdBy: userId, status: "todo" }),
+    Task.countDocuments({ createdBy: userId, status: "in-progress" }),
   ]);
 
   const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
@@ -127,6 +128,7 @@ export const getTaskStats = async (userId) => {
     total,
     completed,
     pending,
+    inProgress,
     completionRate,
   };
 };

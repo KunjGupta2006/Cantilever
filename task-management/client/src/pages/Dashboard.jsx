@@ -1,18 +1,17 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Plus } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import useTaskStore from "../store/taskStore";
-import { TaskStats } from "../components/tasks/TaskStats";
-import { TaskFilters } from "../components/tasks/TaskFilters";
-import { TaskCard } from "../components/tasks/TaskCard";
-import { TaskForm } from "../components/tasks/TaskForm";
+import { MetricsRow } from "../components/tasks/MetricsRow";
+import { TaskToolbar } from "../components/tasks/TaskToolbar";
+import { ListView } from "../components/tasks/ListView";
+import { BoardView } from "../components/tasks/BoardView";
+import { TaskForm } from "../components/common/TaskForm";
 import { Modal } from "../components/common/Modal";
 import { ConfirmModal } from "../components/common/ConfirmModal";
-import { EmptyState } from "../components/common/EmptyState";
-import { SkeletonCard } from "../components/common/Loader";
+import { CommandPalette } from "../components/common/CommandPalette";
 
-export default function Dashboard() {
+export default function Dashboard({ onToggleTheme, dark }) {
   const {
     tasks,
     stats,
@@ -27,13 +26,45 @@ export default function Dashboard() {
     deleteTask,
   } = useTaskStore();
 
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem("viewMode") || "list");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [deletingTask, setDeletingTask] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem("viewMode", viewMode);
+  }, [viewMode]);
 
   useEffect(() => {
     fetchStats();
+  }, []);
+
+  useEffect(() => {
+    fetchTasks(filters);
+  }, [filters, fetchTasks]);
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        setCmdPaletteOpen((p) => !p);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "n" && !e.ctrlKey && !e.metaKey && !e.target.closest("input,textarea,select")) {
+        e.preventDefault();
+        setShowCreateModal(true);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
   const handleCreateTask = async (data) => {
@@ -44,9 +75,7 @@ export default function Dashboard() {
       setShowCreateModal(false);
       fetchTasks(filters);
       fetchStats();
-    } catch {
-      // handled by interceptor
-    } finally {
+    } catch {} finally {
       setSubmitting(false);
     }
   };
@@ -59,9 +88,7 @@ export default function Dashboard() {
       toast.success("Task Updated Successfully");
       setEditingTask(null);
       fetchStats();
-    } catch {
-      // handled by interceptor
-    } finally {
+    } catch {} finally {
       setSubmitting(false);
     }
   };
@@ -74,116 +101,116 @@ export default function Dashboard() {
       setDeletingTask(null);
       fetchTasks(filters);
       fetchStats();
-    } catch {
-      // handled by interceptor
-    }
+    } catch {}
   };
 
-  const handleToggleStatus = async (task) => {
-    const newStatus = task.status === "completed" ? "pending" : "completed";
+  const handleToggleStatus = useCallback(async (task) => {
+    const statusOrder = ["todo", "in-progress", "completed", "todo"];
+    const currentIdx = statusOrder.indexOf(task.status);
+    const newStatus = statusOrder[currentIdx + 1];
     try {
       await updateTask(task._id, { status: newStatus });
       fetchStats();
-    } catch {
-      // handled by interceptor
-    }
-  };
+    } catch {}
+  }, [updateTask, fetchStats]);
+
+  const handleStatusChange = useCallback(async (taskId, newStatus) => {
+    try {
+      await updateTask(taskId, { status: newStatus });
+      fetchStats();
+    } catch {}
+  }, [updateTask, fetchStats]);
 
   const handlePageChange = (newPage) => {
     setFilters({ page: newPage });
   };
 
-  const isFiltered =
-    filters.status || filters.priority || filters.search || filters.sort !== "-createdAt";
+  const pageTitle = filters.status
+    ? `${filters.status === "todo" ? "To Do" : filters.status === "in-progress" ? "In Progress" : "Completed"} Tasks`
+    : "Tasks";
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-4 pb-20 lg:pb-0">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Dashboard</h1>
-          <p className="text-text-secondary text-sm">
-            Welcome back! Here&apos;s your task overview.
+          <h1 className="text-page-heading font-bold text-text-primary dark:text-text-primary-dark">{pageTitle}</h1>
+          <p className="text-sm text-text-secondary dark:text-text-secondary-dark mt-0.5">
+            {pagination.total} task{pagination.total !== 1 ? "s" : ""} total
           </p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="btn-primary flex items-center gap-2 self-start"
-        >
-          <Plus className="w-4 h-4" />
-          New Task
-        </button>
       </div>
 
-      <TaskStats stats={stats} />
+      <MetricsRow stats={stats} />
 
-      <div className="card p-4">
-        <TaskFilters />
-      </div>
+      <TaskToolbar
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        onCreate={() => setShowCreateModal(true)}
+      />
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <SkeletonCard key={i} />
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="card p-4">
+              <div className="skeleton h-4 w-3/4 mb-2" />
+              <div className="skeleton h-3 w-1/2" />
+            </div>
           ))}
         </div>
-      ) : tasks.length === 0 ? (
-        <EmptyState onCreate={() => setShowCreateModal(true)} />
-      ) : (
+      ) : viewMode === "list" ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            <AnimatePresence mode="popLayout">
-              {tasks.map((task) => (
-                <TaskCard
-                  key={task._id}
-                  task={task}
-                  onEdit={setEditingTask}
-                  onDelete={setDeletingTask}
-                  onToggleStatus={handleToggleStatus}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
-
+          <ListView
+            tasks={tasks}
+            onEdit={setEditingTask}
+            onDelete={setDeletingTask}
+            onToggleStatus={handleToggleStatus}
+          />
           {pagination.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 pt-4">
+            <div className="flex items-center justify-center gap-2 pt-2">
               <button
                 onClick={() => handlePageChange(filters.page - 1)}
                 disabled={filters.page <= 1}
-                className="btn-secondary text-sm py-2"
+                className="btn-secondary text-xs py-2"
               >
                 Previous
               </button>
-              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                      filters.page === page
-                        ? "bg-primary text-white"
-                        : "text-text-secondary hover:bg-gray-100"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                )
-              )}
+              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => handlePageChange(p)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    filters.page === p
+                      ? "bg-primary text-white dark:bg-primary-dark dark:text-bg-dark"
+                      : "text-text-secondary dark:text-text-secondary-dark hover:bg-surface-secondary dark:hover:bg-surface-dark-secondary"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
               <button
                 onClick={() => handlePageChange(filters.page + 1)}
                 disabled={filters.page >= pagination.totalPages}
-                className="btn-secondary text-sm py-2"
+                className="btn-secondary text-xs py-2"
               >
                 Next
               </button>
             </div>
           )}
         </>
+      ) : (
+        <BoardView
+          tasks={tasks}
+          onEdit={setEditingTask}
+          onDelete={setDeletingTask}
+          onToggleStatus={handleToggleStatus}
+          onStatusChange={handleStatusChange}
+        />
       )}
 
       <Modal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        title="Create New Task"
+        title="Create Task"
       >
         <TaskForm
           onSubmit={handleCreateTask}
@@ -204,9 +231,8 @@ export default function Dashboard() {
                   title: editingTask.title,
                   description: editingTask.description,
                   priority: editingTask.priority,
-                  dueDate: editingTask.dueDate
-                    ? editingTask.dueDate.split("T")[0]
-                    : "",
+                  status: editingTask.status,
+                  dueDate: editingTask.dueDate ? editingTask.dueDate.split("T")[0] : "",
                 }
               : undefined
           }
@@ -221,7 +247,16 @@ export default function Dashboard() {
         onClose={() => setDeletingTask(null)}
         onConfirm={handleDeleteTask}
         title="Delete Task"
-        message={`Are you sure you want to delete "${deletingTask?.title}"?`}
+        message={`Delete "${deletingTask?.title}"? This cannot be undone.`}
+      />
+
+      <CommandPalette
+        open={cmdPaletteOpen}
+        onClose={() => setCmdPaletteOpen(false)}
+        onCreateTask={() => setShowCreateModal(true)}
+        onViewChange={setViewMode}
+        onToggleTheme={onToggleTheme}
+        dark={dark}
       />
     </div>
   );

@@ -5,6 +5,7 @@ import { config } from "./config/index.js";
 import { errorHandler } from "./middleware/error.js";
 import authRoutes from "./routes/auth.js";
 import taskRoutes from "./routes/tasks.js";
+import noteRoutes from "./routes/notes.js";
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/notes", noteRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({ success: true, message: "Server is running" });

@@ -1,6 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { DashboardLayout } from "./components/layouts/DashboardLayout";
+import { useEffect } from "react";
+import { useTheme } from "./hooks/useTheme";
+import { TopNavigation } from "./components/layouts/TopNavigation";
+import { MobileBottomNav } from "./components/layouts/MobileBottomNav";
+import { NotesPanel } from "./components/notes/NotesPanel";
 import { ProtectedRoute, PublicRoute } from "./routes/ProtectedRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -8,30 +12,29 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 
 export default function App() {
+  const { dark, toggle } = useTheme();
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (dark) root.classList.add("dark");
+    else root.classList.remove("dark");
+  }, [dark]);
+
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_relativeSplatPath: true }}>
       <Toaster
         position="top-right"
         toastOptions={{
           duration: 3000,
           style: {
-            background: "#fff",
-            color: "#0F172A",
-            border: "1px solid #E2E8F0",
-            fontSize: "14px",
+            background: dark ? "#18181B" : "#fff",
+            color: dark ? "#FAFAFA" : "#18181B",
+            border: dark ? "1px solid #3F3F46" : "1px solid #E4E4E7",
+            fontSize: "13px",
+            borderRadius: "12px",
           },
-          success: {
-            iconTheme: {
-              primary: "#22C55E",
-              secondary: "#fff",
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: "#EF4444",
-              secondary: "#fff",
-            },
-          },
+          success: { iconTheme: { primary: "#16A34A", secondary: "#fff" } },
+          error: { iconTheme: { primary: "#DC2626", secondary: "#fff" } },
         }}
       />
       <Routes>
@@ -54,16 +57,27 @@ export default function App() {
         <Route
           element={
             <ProtectedRoute>
-              <DashboardLayout />
+              <div className="min-h-screen bg-bg dark:bg-bg-dark">
+                <TopNavigation dark={dark} onToggleTheme={toggle} />
+                <main className="max-w-7xl mx-auto px-4 lg:px-6 py-6">
+                  <Outlet />
+                </main>
+                <MobileBottomNav />
+                <NotesPanel />
+              </div>
             </ProtectedRoute>
           }
         >
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/tasks" element={<Dashboard />} />
+          <Route path="/dashboard" element={<DashboardWrapper dark={dark} onToggleTheme={toggle} />} />
+          <Route path="/tasks" element={<DashboardWrapper dark={dark} onToggleTheme={toggle} />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   );
+}
+
+function DashboardWrapper({ dark, onToggleTheme }) {
+  return <Dashboard dark={dark} onToggleTheme={onToggleTheme} />;
 }

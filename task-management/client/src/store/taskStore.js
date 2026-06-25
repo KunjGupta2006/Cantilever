@@ -3,7 +3,7 @@ import api from "../api/axios";
 
 const useTaskStore = create((set) => ({
   tasks: [],
-  stats: { total: 0, completed: 0, pending: 0, completionRate: 0 },
+  stats: { total: 0, completed: 0, pending: 0, inProgress: 0, completionRate: 0 },
   pagination: { total: 0, page: 1, limit: 12, totalPages: 0 },
   loading: false,
   filters: {
@@ -38,9 +38,7 @@ const useTaskStore = create((set) => ({
     try {
       const res = await api.get("/tasks/stats");
       set({ stats: res.data });
-    } catch {
-      // silently fail
-    }
+    } catch {}
   },
 
   createTask: async (data) => {

@@ -35,7 +35,7 @@ const seedData = async () => {
       {
         title: "Review team updates",
         description: "Go through the weekly updates from the development team",
-        status: "pending",
+        status: "in-progress",
         priority: "medium",
         dueDate: new Date("2026-06-28"),
         createdBy: user._id,
@@ -43,7 +43,7 @@ const seedData = async () => {
       {
         title: "Update website content",
         description: "Revise the homepage and about page content",
-        status: "pending",
+        status: "todo",
         priority: "low",
         dueDate: new Date("2026-07-05"),
         createdBy: user._id,
@@ -59,7 +59,7 @@ const seedData = async () => {
       {
         title: "Design new dashboard",
         description: "Create wireframes and mockups for the new analytics dashboard",
-        status: "pending",
+        status: "in-progress",
         priority: "medium",
         dueDate: new Date("2026-07-10"),
         createdBy: user._id,
@@ -67,7 +67,7 @@ const seedData = async () => {
       {
         title: "Set up CI/CD pipeline",
         description: "Configure GitHub Actions for automated testing and deployment",
-        status: "pending",
+        status: "todo",
         priority: "high",
         dueDate: new Date("2026-06-30"),
         createdBy: user._id,
@@ -75,7 +75,7 @@ const seedData = async () => {
       {
         title: "Write API documentation",
         description: "Document all REST API endpoints with request/response examples",
-        status: "pending",
+        status: "todo",
         priority: "low",
         dueDate: new Date("2026-07-15"),
         createdBy: user._id,
