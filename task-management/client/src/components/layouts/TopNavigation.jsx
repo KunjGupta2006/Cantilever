@@ -11,8 +11,8 @@ import {
   ChevronDown,
   KanbanSquare,
   Menu,
-  X,
   FileText,
+  X,
 } from "lucide-react";
 import useAuthStore from "../../store/authStore";
 import useTaskStore from "../../store/taskStore";
@@ -110,9 +110,9 @@ export function TopNavigation({ dark, onToggleTheme }) {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`nav-link ${isActive(item.path) ? "active" : ""}`}
+                  className={`nav-link text-primary dark:bg-neutral-200 ${isActive(item.path) ? "active" : ""}`}
                 >
-                  <item.icon className="w-4 h-4" />
+                  <item.icon className="w-4 h-4 " />
                   {item.label}
                 </Link>
               ))}
@@ -130,8 +130,17 @@ export function TopNavigation({ dark, onToggleTheme }) {
                 onChange={(e) => handleSearchChange(e.target.value)}
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
-                className="w-full h-10 pl-9 pr-3 rounded-lg border border-border dark:border-border-dark bg-surface-secondary dark:bg-surface-dark-secondary text-sm text-text-primary dark:text-text-primary-dark placeholder:text-text-secondary/60 focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                className="w-full h-10 pl-9 pr-8 rounded-lg border border-border dark:border-border-dark bg-surface-secondary dark:bg-surface-dark-secondary text-sm text-text-primary dark:text-text-primary-dark placeholder:text-text-secondary/60 focus:outline-none focus:ring-2 focus:ring-accent transition-all"
               />
+              {localSearch && (
+                <button
+                  onClick={() => handleSearchChange("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-surface-secondary dark:hover:bg-surface-dark-secondary text-text-secondary hover:text-text-primary transition-colors"
+                  aria-label="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
             <button

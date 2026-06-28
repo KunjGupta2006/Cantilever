@@ -24,6 +24,28 @@
   }
 }
 
+.prevent-transitions *,
+.prevent-transitions *::before,
+.prevent-transitions *::after {
+  transition: none !important;
+}
+
+*,
+*::before,
+*::after {
+  transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+input,
+textarea,
+select,
+button,
+a {
+  transition-duration: 100ms;
+}
+
 @layer components {
   .btn-primary {
     @apply bg-primary text-white px-4 py-2.5 rounded-input font-medium text-sm
@@ -45,11 +67,19 @@
       active:scale-[0.98];
   }
 
+  .dark .btn-secondary {
+    @apply text-text-primary-dark border-border-dark hover:bg-surface-dark-secondary;
+  }
+
   .btn-ghost {
     @apply bg-transparent text-text-secondary px-3 py-2 rounded-lg font-medium text-sm
       hover:bg-surface-secondary hover:text-text-primary transition-all duration-150
       focus-visible:ring-2 focus-visible:ring-accent
       disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .dark .btn-ghost {
+    @apply text-text-secondary-dark hover:bg-surface-dark-secondary hover:text-text-primary-dark;
   }
 
   .btn-danger {
@@ -58,6 +88,10 @@
       focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-2
       disabled:opacity-50 disabled:cursor-not-allowed
       active:scale-[0.98];
+  }
+
+  .dark .btn-danger {
+    @apply bg-danger/90 hover:bg-danger;
   }
 
   .input-field {

@@ -76,7 +76,7 @@ export function BoardView({ tasks, onEdit, onDelete, onToggleStatus, onStatusCha
                 <div className="space-y-2 min-h-[120px]" id={col.id}>
                   {colTasks.length === 0 ? (
                     <div className="text-center py-8">
-                      <p className="text-xs text-text-secondary/60 dark:text-text-secondary-dark/60">No tasks</p>
+                      <p className="text-xs text-text-secondary/50 dark:text-text-secondary-dark/50">No tasks</p>
                     </div>
                   ) : (
                     colTasks.map((task) => (

@@ -15,15 +15,24 @@ const statusConfig = {
   pending: { label: "To Do", color: "text-warning bg-warning/10" },
 };
 
-export function ListView({ tasks, onEdit, onDelete, onToggleStatus }) {
+export function ListView({ tasks, onEdit, onDelete, onToggleStatus, hasActiveFilters }) {
   if (tasks.length === 0) {
     return (
       <div className="card p-12 flex flex-col items-center justify-center text-center">
         <div className="w-12 h-12 bg-surface-secondary dark:bg-surface-dark-secondary rounded-xl flex items-center justify-center mb-3">
           <ListTodoIcon className="w-6 h-6 text-text-secondary dark:text-text-secondary-dark" />
         </div>
-        <h3 className="font-semibold text-text-primary dark:text-text-primary-dark mb-1">No tasks yet</h3>
-        <p className="text-sm text-text-secondary dark:text-text-secondary-dark mb-4">Start by creating your first task.</p>
+        {hasActiveFilters ? (
+          <>
+            <h3 className="font-semibold text-text-primary dark:text-text-primary-dark mb-1">No matching tasks</h3>
+            <p className="text-sm text-text-secondary dark:text-text-secondary-dark">Try adjusting your search or filters.</p>
+          </>
+        ) : (
+          <>
+            <h3 className="font-semibold text-text-primary dark:text-text-primary-dark mb-1">No tasks yet</h3>
+            <p className="text-sm text-text-secondary dark:text-text-secondary-dark">Start by creating your first task.</p>
+          </>
+        )}
       </div>
     );
   }

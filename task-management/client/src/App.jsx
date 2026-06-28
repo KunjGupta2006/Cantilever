@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { useEffect } from "react";
 import { useTheme } from "./hooks/useTheme";
 import { TopNavigation } from "./components/layouts/TopNavigation";
 import { MobileBottomNav } from "./components/layouts/MobileBottomNav";
@@ -13,12 +12,6 @@ import Profile from "./pages/Profile";
 
 export default function App() {
   const { dark, toggle } = useTheme();
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (dark) root.classList.add("dark");
-    else root.classList.remove("dark");
-  }, [dark]);
 
   return (
     <BrowserRouter future={{ v7_relativeSplatPath: true }}>
@@ -68,16 +61,12 @@ export default function App() {
             </ProtectedRoute>
           }
         >
-          <Route path="/dashboard" element={<DashboardWrapper dark={dark} onToggleTheme={toggle} />} />
-          <Route path="/tasks" element={<DashboardWrapper dark={dark} onToggleTheme={toggle} />} />
+          <Route path="/dashboard" element={<Dashboard dark={dark} onToggleTheme={toggle} />} />
+          <Route path="/tasks" element={<Dashboard dark={dark} onToggleTheme={toggle} />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   );
-}
-
-function DashboardWrapper({ dark, onToggleTheme }) {
-  return <Dashboard dark={dark} onToggleTheme={onToggleTheme} />;
 }

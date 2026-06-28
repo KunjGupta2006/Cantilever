@@ -119,8 +119,8 @@ export default function Login() {
               </button>
 
               <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border"></div></div>
-                <div className="relative flex justify-center text-xs"><span className="bg-surface px-2 text-text-secondary">or</span></div>
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border dark:border-border-dark"></div></div>
+                <div className="relative flex justify-center text-xs"><span className="bg-surface dark:bg-surface-dark px-2 text-text-secondary dark:text-text-secondary-dark">or</span></div>
               </div>
 
               <p className="text-center text-sm text-text-secondary">

@@ -75,7 +75,9 @@ export default function Dashboard({ onToggleTheme, dark }) {
       setShowCreateModal(false);
       fetchTasks(filters);
       fetchStats();
-    } catch {} finally {
+    } catch {
+      toast.error("Failed to create task");
+    } finally {
       setSubmitting(false);
     }
   };
@@ -88,7 +90,9 @@ export default function Dashboard({ onToggleTheme, dark }) {
       toast.success("Task Updated Successfully");
       setEditingTask(null);
       fetchStats();
-    } catch {} finally {
+    } catch {
+      toast.error("Failed to update task");
+    } finally {
       setSubmitting(false);
     }
   };
@@ -101,7 +105,9 @@ export default function Dashboard({ onToggleTheme, dark }) {
       setDeletingTask(null);
       fetchTasks(filters);
       fetchStats();
-    } catch {}
+    } catch {
+      toast.error("Failed to delete task");
+    }
   };
 
   const handleToggleStatus = useCallback(async (task) => {
@@ -111,14 +117,18 @@ export default function Dashboard({ onToggleTheme, dark }) {
     try {
       await updateTask(task._id, { status: newStatus });
       fetchStats();
-    } catch {}
+    } catch {
+      toast.error("Failed to update status");
+    }
   }, [updateTask, fetchStats]);
 
   const handleStatusChange = useCallback(async (taskId, newStatus) => {
     try {
       await updateTask(taskId, { status: newStatus });
       fetchStats();
-    } catch {}
+    } catch {
+      toast.error("Failed to update status");
+    }
   }, [updateTask, fetchStats]);
 
   const handlePageChange = (newPage) => {
@@ -164,6 +174,7 @@ export default function Dashboard({ onToggleTheme, dark }) {
             onEdit={setEditingTask}
             onDelete={setDeletingTask}
             onToggleStatus={handleToggleStatus}
+            hasActiveFilters={!!(filters.search || filters.status || filters.priority)}
           />
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 pt-2">

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Plus, Trash2, FileText } from "lucide-react";
+import { X, Plus, Trash2, FileText, ArrowLeft } from "lucide-react";
 import useNoteStore from "../../store/noteStore";
 
 export function NotesPanel() {
@@ -56,17 +56,31 @@ export function NotesPanel() {
           >
             <div className="flex items-center justify-between px-4 h-[72px] border-b border-border dark:border-border-dark">
               <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-accent" />
-                <h2 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark">Notes</h2>
+                {activeNote ? (
+                  <button
+                    onClick={() => setActiveNote(null)}
+                    className="p-1.5 rounded-lg hover:bg-surface-secondary dark:hover:bg-surface-dark-secondary text-text-secondary dark:text-text-secondary-dark hover:text-text-primary dark:hover:text-text-primary-dark transition-colors"
+                    aria-label="Back to notes list"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </button>
+                ) : (
+                  <FileText className="w-5 h-5 text-accent" />
+                )}
+                <h2 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark">
+                  {activeNote ? (activeNote.title || "Untitled") : "Notes"}
+                </h2>
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={handleCreate}
-                  className="p-2 rounded-lg hover:bg-surface-secondary dark:hover:bg-surface-dark-secondary text-text-secondary hover:text-text-primary dark:hover:text-text-primary-dark transition-colors"
-                  aria-label="New note"
-                >
-                  <Plus className="w-5 h-5" />
-                </button>
+                {!activeNote && (
+                  <button
+                    onClick={handleCreate}
+                    className="p-2 rounded-lg hover:bg-surface-secondary dark:hover:bg-surface-dark-secondary text-text-secondary hover:text-text-primary dark:hover:text-text-primary-dark transition-colors"
+                    aria-label="New note"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
+                )}
                 <button
                   onClick={togglePanel}
                   className="p-2 rounded-lg hover:bg-surface-secondary dark:hover:bg-surface-dark-secondary text-text-secondary hover:text-text-primary dark:hover:text-text-primary-dark transition-colors"

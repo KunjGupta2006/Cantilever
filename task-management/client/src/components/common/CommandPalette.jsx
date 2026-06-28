@@ -3,24 +3,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, LayoutList, Columns3, ArrowRight, Moon, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const defaultActions = [
-  { id: "new-task", label: "Create new task", icon: Plus, shortcut: "N" },
-  { id: "view-list", label: "Switch to List view", icon: LayoutList },
-  { id: "view-board", label: "Switch to Board view", icon: Columns3 },
-  { id: "go-dashboard", label: "Go to Dashboard", icon: ArrowRight },
-  { id: "go-tasks", label: "Go to Tasks", icon: ArrowRight },
-];
-
 export function CommandPalette({ open, onClose, onCreateTask, onViewChange, onToggleTheme, dark }) {
   const [query, setQuery] = useState("");
   const [selectedIdx, setSelectedIdx] = useState(0);
   const navigate = useNavigate();
 
-  const actions = query
-    ? defaultActions.filter((a) =>
+  const actions = [
+    { id: "new-task", label: "Create new task", icon: Plus, shortcut: "N" },
+    { id: "view-list", label: "Switch to List view", icon: LayoutList },
+    { id: "view-board", label: "Switch to Board view", icon: Columns3 },
+    { id: "go-dashboard", label: "Go to Dashboard", icon: ArrowRight },
+    { id: "go-tasks", label: "Go to Tasks", icon: ArrowRight },
+    { id: "toggle-theme", label: dark ? "Switch to Light mode" : "Switch to Dark mode", icon: dark ? Sun : Moon },
+  ];
+
+  const filtered = query
+    ? actions.filter((a) =>
         a.label.toLowerCase().includes(query.toLowerCase())
       )
-    : defaultActions;
+    : actions;
 
   useEffect(() => {
     if (!open) {
@@ -34,14 +35,14 @@ export function CommandPalette({ open, onClose, onCreateTask, onViewChange, onTo
       if (!open) return;
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        setSelectedIdx((i) => Math.min(i + 1, actions.length - 1));
+        setSelectedIdx((i) => Math.min(i + 1, filtered.length - 1));
       }
       if (e.key === "ArrowUp") {
         e.preventDefault();
         setSelectedIdx((i) => Math.max(i - 1, 0));
       }
-      if (e.key === "Enter" && actions[selectedIdx]) {
-        executeAction(actions[selectedIdx]);
+      if (e.key === "Enter" && filtered[selectedIdx]) {
+        executeAction(filtered[selectedIdx]);
       }
       if (e.key === "Escape") {
         onClose();
@@ -49,23 +50,7 @@ export function CommandPalette({ open, onClose, onCreateTask, onViewChange, onTo
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, selectedIdx, actions]);
-
-  useEffect(() => {
-    const handleGlobal = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-        e.preventDefault();
-        if (open) onClose();
-        else {
-          setQuery("");
-          setSelectedIdx(0);
-          onClose(); // toggle by calling open callback
-        }
-      }
-    };
-    window.addEventListener("keydown", handleGlobal);
-    return () => window.removeEventListener("keydown", handleGlobal);
-  }, [open]);
+  }, [open, selectedIdx, filtered]);
 
   const executeAction = useCallback((action) => {
     switch (action.id) {
@@ -81,6 +66,10 @@ export function CommandPalette({ open, onClose, onCreateTask, onViewChange, onTo
         onViewChange?.("board");
         onClose();
         break;
+      case "toggle-theme":
+        onToggleTheme?.();
+        onClose();
+        break;
       case "go-dashboard":
         navigate("/dashboard");
         onClose();
@@ -92,7 +81,7 @@ export function CommandPalette({ open, onClose, onCreateTask, onViewChange, onTo
       default:
         onClose();
     }
-  }, [navigate, onCreateTask, onViewChange, onClose]);
+  }, [navigate, onCreateTask, onViewChange, onClose, onToggleTheme]);
 
   return (
     <AnimatePresence>
@@ -124,14 +113,14 @@ export function CommandPalette({ open, onClose, onCreateTask, onViewChange, onTo
               />
             </div>
             <div className="py-1 max-h-64 overflow-y-auto">
-              {actions.map((action, i) => (
+              {filtered.map((action, i) => (
                 <button
                   key={action.id}
                   onClick={() => executeAction(action)}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
                     i === selectedIdx
                       ? "bg-accent/10 text-accent"
-                      :                       "text-text-secondary dark:text-text-secondary-dark hover:text-text-primary dark:hover:text-text-primary-dark hover:bg-surface-secondary dark:hover:bg-surface-dark-secondary"
+                      : "text-text-secondary dark:text-text-secondary-dark hover:text-text-primary dark:hover:text-text-primary-dark hover:bg-surface-secondary dark:hover:bg-surface-dark-secondary"
                   }`}
                 >
                   <action.icon className="w-4 h-4" />
@@ -143,7 +132,7 @@ export function CommandPalette({ open, onClose, onCreateTask, onViewChange, onTo
                   )}
                 </button>
               ))}
-              {actions.length === 0 && (
+              {filtered.length === 0 && (
                 <p className="px-4 py-6 text-sm text-text-secondary dark:text-text-secondary-dark text-center">No results</p>
               )}
             </div>
