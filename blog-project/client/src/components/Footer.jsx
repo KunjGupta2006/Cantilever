@@ -40,7 +40,7 @@ export default function Footer() {
         </div>
 
         <p style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--color-ink-faint)" }}>
-          © 2025 Inkwell · Built with MERN
+          © 2026 Inkwell
         </p>
       </div>
     </footer>
